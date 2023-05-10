@@ -1,8 +1,9 @@
-import {View, Text, StyleSheet, Alert} from "react-native";
+import {View, Text, StyleSheet} from "react-native";
 import Input from "./Input";
 import {useState} from "react";
 import Button from "../UI/Button";
 import {getFormattedDate} from "../../util/date";
+import {GlobalStyles} from "../../constants/styles";
 function ExpenseForm({onCancel, onSubmit, submitButtonHandler, currentValues}) {
     const [inputs, setInputs] = useState({
         amount: {
@@ -40,8 +41,6 @@ function ExpenseForm({onCancel, onSubmit, submitButtonHandler, currentValues}) {
         const descriptionIsValid = expenseData.description.trim().length > 0
 
         if(!amountIsValid || !dateIsValid || !descriptionIsValid ){
-            Alert.alert("Invalid input", "Please check our input values")
-
             setInputs((currInput) => {
                 return {
                     amount: {value: currInput.amount.value, isValid: amountIsValid},
@@ -69,6 +68,7 @@ function ExpenseForm({onCancel, onSubmit, submitButtonHandler, currentValues}) {
                         value: inputs.amount.value
                     }}
                     style={styles.rowInput}
+                    invalid={!inputs.amount.isValid}
                 />
                 <Input
                     label="Date"
@@ -79,6 +79,7 @@ function ExpenseForm({onCancel, onSubmit, submitButtonHandler, currentValues}) {
                         value: inputs.date.value
                     }}
                     style={styles.rowInput}
+                    invalid={!inputs.date.isValid}
                 />
             </View>
             <Input
@@ -90,8 +91,9 @@ function ExpenseForm({onCancel, onSubmit, submitButtonHandler, currentValues}) {
                     onChangeText: inputChangedHandler.bind(this, "description"),
                     value: inputs.description.value
                 }}
+                invalid={!inputs.description.isValid}
             />
-            {formIsInvalid && <Text>Invalid Input values - please check your entered data!</Text>}
+            {formIsInvalid && <Text style={styles.errorText}>Invalid Input values - please check your entered data!</Text>}
             <View style={styles.buttons}>
                 <Button style={styles.button} mode="flat" onPress={onCancel}>Cancel</Button>
                 <Button style={styles.button} onPress={submitHandler}>{submitButtonHandler}</Button>
@@ -119,6 +121,11 @@ const styles = StyleSheet.create({
     },
     rowInput: {
         flex: 1
+    },
+    errorText: {
+        textAlign: "center",
+        color: GlobalStyles.colors.error500,
+        margin: 8
     },
     buttons: {
         flexDirection: "row",
