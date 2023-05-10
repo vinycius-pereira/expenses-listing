@@ -6,9 +6,12 @@ import {ExpensesContext} from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 
 function ManageExpenses({route, navigation}) {
+    const expenseCtx = useContext(ExpensesContext)
+
     const editedExpenseId = route.params?.expenseId
     const isEditing = !!editedExpenseId
-    const expenseCtx = useContext(ExpensesContext)
+
+    const selectedExpense = expenseCtx.expenses.find(expense => expense.id === editedExpenseId )
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -24,11 +27,12 @@ function ManageExpenses({route, navigation}) {
     const cancelHandler = () => {
         navigation.goBack()
     }
-    const confirmHandler = () => {
+    const confirmHandler = (expenseData) => {
+        console.log(expenseData)
         if(isEditing) {
-            expenseCtx.updateExpense(editedExpenseId, {description: "TESTE", amount: 29.99, date: new Date()})
+            expenseCtx.updateExpense(editedExpenseId, expenseData)
         } else {
-            expenseCtx.addExpense({description: "test", amount: 19.99, date: new Date()})
+            expenseCtx.addExpense(expenseData)
         }
         navigation.goBack()
     }
@@ -38,6 +42,8 @@ function ManageExpenses({route, navigation}) {
             <ExpenseForm
                 submitButtonHandler={isEditing ? "Update" : "Add"}
                 onCancel={cancelHandler}
+                onSubmit={confirmHandler}
+                currentValues={selectedExpense}
             />
             <View style={styles.deleteContainer}>
                 {isEditing && <IconButton icon="trash" color={GlobalStyles.colors.error500} size={36} onPress={deleteExpenseHandler}/>}
