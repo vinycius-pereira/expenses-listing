@@ -1,12 +1,14 @@
 import { View, StyleSheet} from 'react-native'
-import {useContext, useLayoutEffect} from "react";
+import {useContext, useLayoutEffect, useState} from "react";
 import {GlobalStyles} from "../constants/styles";
 import IconButton from "../components/UI/IconButton";
 import {ExpensesContext} from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import {deleteExpense, storeExpense, updateExpense} from "../util/http";
+import LoadingOverlay from "../components/UI/LoadingOverlay";
 
 function ManageExpenses({route, navigation}) {
+    const [isLoading, setIsLoading] = useState(false)
     const expenseCtx = useContext(ExpensesContext)
 
     const editedExpenseId = route.params?.expenseId
@@ -21,6 +23,7 @@ function ManageExpenses({route, navigation}) {
     }, [navigation, isEditing])
 
     const deleteExpenseHandler = async () => {
+        setIsLoading(true)
         await deleteExpense(editedExpenseId)
         expenseCtx.deleteExpense(editedExpenseId)
         navigation.goBack()
@@ -30,6 +33,7 @@ function ManageExpenses({route, navigation}) {
         navigation.goBack()
     }
     const confirmHandler = async (expenseData) => {
+        setIsLoading(true)
         if(isEditing) {
             expenseCtx.updateExpense(editedExpenseId, expenseData)
             await updateExpense(editedExpenseId, expenseData)
@@ -38,6 +42,10 @@ function ManageExpenses({route, navigation}) {
             expenseCtx.addExpense({...expenseData, id: id})
         }
         navigation.goBack()
+    }
+
+    if (isLoading) {
+        return <LoadingOverlay/>
     }
 
     return (
