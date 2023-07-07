@@ -6,9 +6,11 @@ import {ExpensesContext} from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import {deleteExpense, storeExpense, updateExpense} from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
+import ErrorOverlay from "../components/UI/ErrorOverlay";
 
 function ManageExpenses({route, navigation}) {
     const [isLoading, setIsLoading] = useState(false)
+    const [errorHandler, setErrorHandler] = useState()
     const expenseCtx = useContext(ExpensesContext)
 
     const editedExpenseId = route.params?.expenseId
@@ -24,9 +26,14 @@ function ManageExpenses({route, navigation}) {
 
     const deleteExpenseHandler = async () => {
         setIsLoading(true)
-        await deleteExpense(editedExpenseId)
-        expenseCtx.deleteExpense(editedExpenseId)
-        navigation.goBack()
+        try {
+            await deleteExpense(editedExpenseId)
+            expenseCtx.deleteExpense(editedExpenseId)
+            navigation.goBack()
+        } catch (e) {
+            setErrorHandler("Could not delete expense - please try again later")
+            setIsLoading(false)
+        }
     }
 
     const cancelHandler = () => {
@@ -34,14 +41,23 @@ function ManageExpenses({route, navigation}) {
     }
     const confirmHandler = async (expenseData) => {
         setIsLoading(true)
-        if(isEditing) {
-            expenseCtx.updateExpense(editedExpenseId, expenseData)
-            await updateExpense(editedExpenseId, expenseData)
-        } else {
-            const id = await storeExpense(expenseData)
-            expenseCtx.addExpense({...expenseData, id: id})
+        try {
+            if(isEditing) {
+                expenseCtx.updateExpense(editedExpenseId, expenseData)
+                await updateExpense(editedExpenseId, expenseData)
+            } else {
+                const id = await storeExpense(expenseData)
+                expenseCtx.addExpense({...expenseData, id: id})
+            }
+            navigation.goBack()
+        } catch (e) {
+            setErrorHandler("Could not save data - please try again later")
+            setIsLoading(false)
         }
-        navigation.goBack()
+    }
+
+    if(errorHandler && !isLoading) {
+        return <ErrorOverlay message={errorHandler}/>
     }
 
     if (isLoading) {
