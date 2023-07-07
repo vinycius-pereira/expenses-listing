@@ -2,7 +2,7 @@ import {View, Text, StyleSheet} from 'react-native'
 import {GlobalStyles} from "../../constants/styles";
 import React from "react";
 
-function ErrorOverlay({message, onConfirm}) {
+function ErrorOverlay({message}) {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>An error occurred</Text>
