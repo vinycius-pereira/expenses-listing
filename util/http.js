@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'https://react-native-course-dd0d8-default-rtdb.firebaseio.com'
+const BACKEND_URL = 'https://expenses-project-f84aa-default-rtdb.firebaseio.com/'
 
 export async function storeExpense(expenseData) {
     // after /<node>.json
